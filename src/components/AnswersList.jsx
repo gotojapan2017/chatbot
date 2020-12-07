@@ -6,12 +6,11 @@ const AnswersList = (props) => {
         <React.Fragment>
             <div className="c-grid__answer">
                 {props.answers.map((value,index) => {
-                    return <Answer content={value.content} key={index.toString()}/>
+                    return <Answer content={value.content} nextId={value.nextId} key={index.toString()} select={props.select} />
                 })}
-                <Answer content="phuoclv"/>
             </div>
         </React.Fragment>
     )
 }
 
-export default AnswersList;
+export default AnswersList

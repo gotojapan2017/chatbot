@@ -1,6 +1,7 @@
+import { TransferWithinAStationSharp } from '@material-ui/icons';
 import React from 'react';
 import './assets/styles/style.css';
-import {AnswersList} from './components/index';
+import {AnswersList, Chats} from './components/index';
 import defaultDataset from './dataset';
 
 export default class App extends React.Component {
@@ -13,18 +14,47 @@ export default class App extends React.Component {
             dataset: defaultDataset,
             open: false
         }
+        this.selectAnswer = this.selectAnswer.bind(this);
     }
 
-    initAnswer = () => {
-        const initDataset = this.state.dataset[this.state.currentId];
-        const initAnswers = initDataset.answers;
+    displayNextQuestion = (nextQuestionId) => {
+        const chats = this.state.chats;
+        chats.push({
+            text: this.state.dataset[nextQuestionId].question,
+            type: 'question'
+        })
+
         this.setState({
-            answers: initAnswers,
+            answers: this.state.dataset[nextQuestionId].answers,
+            chats: chats,
+            currentId: nextQuestionId
         })
     }
 
-    componentDidMount(){
-        this.initAnswer();
+    selectAnswer = (selectedAnswer, nextQuestionId) => {
+        switch(true) {
+            case (nextQuestionId === 'init'):
+                this.displayNextQuestion(nextQuestionId);
+                break;
+            default:
+                const chats = this.state.chats;
+                chats.push({
+                    text: selectedAnswer,
+                    type: 'answer'
+                })
+
+                this.setState({
+                    chats: chats
+                })
+
+                this.displayNextQuestion(nextQuestionId);
+                break;
+        }
+    }
+
+    componentDidMount() {
+        const initAnser = "";
+        this.selectAnswer(initAnser, this.state.currentId);
     }
 
     render(){
@@ -32,8 +62,9 @@ export default class App extends React.Component {
             <React.Fragment>
                 <section className="c-section">
                     <div className="c-box">
-                        <AnswersList answers={this.state.answers}/>
-                    </div>
+                        <Chats chats={this.state.chats} />
+                        <AnswersList answers={this.state.answers} select={this.selectAnswer} />
+                    </div>  
                 </section>
             </React.Fragment>
         )
