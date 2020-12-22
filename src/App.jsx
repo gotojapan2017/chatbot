@@ -1,8 +1,9 @@
-import { TransferWithinAStationSharp } from '@material-ui/icons';
 import React from 'react';
 import './assets/styles/style.css';
 import {AnswersList, Chats} from './components/index';
-import defaultDataset from './dataset';
+//import defaultDataset from './dataset';
+import FormDialog from './components/Forms/FormDialog';
+import {db} from './firebase/index';
 
 export default class App extends React.Component {
     constructor(props){
@@ -11,10 +12,12 @@ export default class App extends React.Component {
             answers: [],
             chats: [],
             currentId: "init",
-            dataset: defaultDataset,
+            dataset: {}, //defaultDataset
             open: false
         }
         this.selectAnswer = this.selectAnswer.bind(this);
+        this.handleClickOpen = this.handleClickOpen.bind(this);
+        this.handleClose = this.handleClose.bind(this);
     }
 
     displayNextQuestion = (nextQuestionId) => {
@@ -23,18 +26,26 @@ export default class App extends React.Component {
             text: this.state.dataset[nextQuestionId].question,
             type: 'question'
         })
-
         this.setState({
-            answers: this.state.dataset[nextQuestionId].answers,
             chats: chats,
-            currentId: nextQuestionId
+            currentId: nextQuestionId,
+            answers: this.state.dataset[nextQuestionId].answers
         })
     }
 
     selectAnswer = (selectedAnswer, nextQuestionId) => {
         switch(true) {
             case (nextQuestionId === 'init'):
-                this.displayNextQuestion(nextQuestionId);
+                setTimeout(() => this.displayNextQuestion(nextQuestionId),500);
+                break;
+            case (nextQuestionId === 'contact'):
+                this.handleClickOpen();
+                break;
+            case (/^https:*/.test(nextQuestionId)):
+                const a = document.createElement('a');
+                a.href = nextQuestionId;
+                a.target = '_blank';
+                a.click();
                 break;
             default:
                 const chats = this.state.chats;
@@ -42,19 +53,53 @@ export default class App extends React.Component {
                     text: selectedAnswer,
                     type: 'answer'
                 })
-
                 this.setState({
                     chats: chats
                 })
-
-                this.displayNextQuestion(nextQuestionId);
+                setTimeout(() => this.displayNextQuestion(nextQuestionId),1000);
                 break;
         }
     }
 
+    handleClickOpen = () => {
+        this.setState({
+            open: true
+        })
+    }
+
+    handleClose = () => {
+        this.setState({
+            open: false
+        })
+    }
+
+    initDataset = (dataset) => {
+        this.setState({
+            dataset: dataset
+        })
+    }
+
     componentDidMount() {
-        const initAnser = "";
-        this.selectAnswer(initAnser, this.state.currentId);
+        (async() => {
+            const dataset = this.state.dataset;
+            await db.collection('questions').get().then(snapshots => {
+                snapshots.forEach(doc => {
+                    const id = doc.id;
+                    const data = doc.data();
+                    dataset[id] = data;
+                })
+            });
+            this.initDataset(dataset);
+            const initAnswer = "";
+            this.selectAnswer(initAnswer, this.state.currentId);
+        })()
+    }
+
+    componentDidUpdate() {
+        const scrollArea = document.getElementById('scroll-area');
+        if (scrollArea) {
+            scrollArea.scrollTop = scrollArea.scrollHeight;
+        }
     }
 
     render(){
@@ -64,6 +109,7 @@ export default class App extends React.Component {
                     <div className="c-box">
                         <Chats chats={this.state.chats} />
                         <AnswersList answers={this.state.answers} select={this.selectAnswer} />
+                        <FormDialog open={this.state.open} handleClose={this.handleClose} />
                     </div>  
                 </section>
             </React.Fragment>

@@ -12,7 +12,7 @@ const Chat = (props) => {
         <React.Fragment>
             <ListItem className={classes}>
                 <ListItemAvatar>
-                    {isQuestion ? 
+                    {isQuestion ?
                         (<Avatar alt="icon" src={Phuoclv} />)
                       : (<Avatar alt="icon" src={NoProfile} />)}
                 </ListItemAvatar>
