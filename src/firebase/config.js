@@ -6,8 +6,8 @@ const firebaseConfig = {
     projectId: "chatbot-92b7b",
     storageBucket: "chatbot-92b7b.appspot.com",
     messagingSenderId: "117815622110",
-    appId: "1:117815622110:web:23ba9fddb1caf75d57c54f",
-    measurementId: "G-ZYT0RZGVDP"
+    appId: "1:117815622110:web:2c1209e47696d02f57c54f",
+    measurementId: "G-4FV2K04ZL2"
   };
 
   export default firebaseConfig
